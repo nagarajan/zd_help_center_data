@@ -1,32 +1,29 @@
-from zd_article1 import data
-import string
+import json
+import os
+from html.parser import HTMLParser
+from pprint import pp
+
 
 tags = set()
 
-string.
+class MyHTMLParser(HTMLParser):
+    def handle_starttag(self, tag, attrs):
+        tags.add(tag)
 
-def getTag(body, idx):
-  tag = ''
-  if body[idx] not in string.ascii_letters:
-    print(f'debug {body[idx]}')
-  while body[idx] in string.ascii_letters:
-    tag += body[idx]
-    idx += 1
-  
-  return tag
+dataDir = 'data/en-us'
+files = [
+    'articles_1.json',
+    'articles_2.json',
+    'articles_3.json',
+]
 
-def getTags(body):
-  gtags = set()
-  for i, x in enumerate(body):
-    if x == '<':
-      if body[i+1] not in ['/', '!']:
-        gtags.add(getTag(body, i+1))
-  return gtags
 
-for art in data['articles']:
-  body = art['body']
-  tags.update(getTags(body))
+parser = MyHTMLParser()
 
-from pprint import pprint as pp
+for fn in files:
+    data = json.loads(open(os.path.join(dataDir, fn)).read())
+    for article in data['articles']:
+        parser.feed(article['body'])
 
-pp(tags)
+print(', '.join(sorted(tags)))
+
